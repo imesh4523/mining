@@ -16,12 +16,15 @@ const Hero = () => {
           CLOUD MINING <br />
           <span className="highlight">MADE SIMPLE.</span>
         </h1>
+        <div className="bonus-badge" style={{ display: 'inline-block', background: 'rgba(255, 214, 10, 0.15)', border: '1px solid var(--primary)', padding: '8px 16px', borderRadius: '30px', marginTop: '10px', marginBottom: '15px' }}>
+          <span style={{ color: 'var(--primary)', fontWeight: 'bold', letterSpacing: '1px' }}>🎉 CLAIM $200 WELCOME BONUS</span>
+        </div>
         <p className="hero-description">
           Start mining cryptocurrencies effortlessly using our
-          state-of-the-art technology from home.
+          state-of-the-art technology from home. Sign up today and instantly receive your welcome bonus to kickstart your earnings!
         </p>
         <div className="hero-actions">
-          <button className="btn-primary">Get Started</button>
+          <button className="btn-primary">Get Started Now</button>
         </div>
       </motion.div>
       <motion.div 
