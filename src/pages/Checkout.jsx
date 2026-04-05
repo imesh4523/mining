@@ -19,6 +19,44 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('wallet');
   const [paymentStage, setPaymentStage] = useState('checkout'); // 'checkout' | 'crypto-gateway'
   const [selectedCrypto, setSelectedCrypto] = useState('USDT');
+  const [cryptoInvoiceData, setCryptoInvoiceData] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(4 * 60 * 60);
+
+  useEffect(() => {
+    let timer;
+    if (paymentStage === 'crypto-invoice' && timeLeft > 0 && cryptoInvoiceData) {
+       timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [paymentStage, timeLeft, cryptoInvoiceData]);
+
+  // 🔄 Poll payment status every 30s
+  useEffect(() => {
+    let pollInterval;
+    if (paymentStage === 'crypto-invoice' && cryptoInvoiceData?.payment_id) {
+      pollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/payment/status/${cryptoInvoiceData.payment_id}`);
+          const data = await res.json();
+          if (data.payment_status === 'finished' || data.payment_status === 'confirmed') {
+            clearInterval(pollInterval);
+            addPlan({ ...plan, purchasePrice: customPrice, hashrate: displayHashrate });
+            navigate('/console');
+          }
+        } catch (err) {
+          console.error('Polling error:', err);
+        }
+      }, 30000); // Check every 30 seconds
+    }
+    return () => clearInterval(pollInterval);
+  }, [paymentStage, cryptoInvoiceData]);
+
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
 
   useEffect(() => {
     if (plan?.price) {
@@ -87,7 +125,7 @@ const Checkout = () => {
     if (paymentMethod === 'nowpayments') {
       setIsProcessing(true);
       setTimeout(() => {
-        setPaymentStage('crypto-gateway');
+        setPaymentStage('crypto-selection');
         setIsProcessing(false);
       }, 1000);
       return;
@@ -110,67 +148,164 @@ const Checkout = () => {
   };
 
   const handleCryptoPaymentSuccess = () => {
-      // Simulating the user actually sending the crypto and our backend detecting it
       setIsProcessing(true);
       setTimeout(() => {
-         // Add plan without deducting 'balance' since they paid via external crypto
          addPlan({ ...plan, purchasePrice: customPrice, hashrate: displayHashrate });
          navigate('/console');
       }, 2000);
   }
 
-  if (paymentStage === 'crypto-gateway') {
+  const handleCopy = (text) => {
+      if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => alert('Address copied to clipboard!'));
+      } else {
+          // Fallback for non-HTTPS dev environments
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          // Move outside of screen to make it invisible
+          textArea.style.position = 'absolute';
+          textArea.style.left = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+              document.execCommand('copy');
+              alert('Address copied to clipboard (Fallback)!');
+          } catch (error) {
+              console.error('Fallback copy failed', error);
+              alert('Failed to copy. Please select and copy manually.');
+          }
+          textArea.remove();
+      }
+  };
+
+  const handleCoinSelection = async (coin) => {
+    setSelectedCrypto(coin);
+    setPaymentStage('crypto-invoice');
+    setTimeLeft(4 * 60 * 60);
+    
+    // Optimistic fast render to instantly display QR and bypass API delay
+    const fallbackAmount = coin === 'BTC' ? (customPrice / 65000).toFixed(6) : (coin === 'TRX' ? (customPrice / 0.12).toFixed(2) : customPrice.toFixed(2));
+    setCryptoInvoiceData({
+       pay_address: CRYPTO_WALLETS[coin],
+       pay_amount: fallbackAmount,
+       pay_currency: coin === 'USDT' ? 'USDTMATIC' : coin
+    });
+
+    try {
+      const response = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          price_amount: customPrice,
+          pay_currency: coin
+        })
+      });
+      const data = await response.json();
+      if (data.pay_address) {
+         setCryptoInvoiceData(data); // Instantly overwrite with exact real API data silently
+      } else {
+         alert("NOWPayments API Error: " + (data.details?.message || data.error || 'Transaction rejected by Gateway'));
+         setPaymentStage('checkout'); // Send them back to checkout
+      }
+    } catch (err) {
+      console.error('Invoice creation error:', err);
+    }
+  };
+
+  if (paymentStage === 'crypto-selection') {
     return (
       <div className="checkout-page container">
         <div className="checkout-header text-center">
-          <h2 className="section-title">Crypto Payment Gateway</h2>
-          <p className="subtitle">Send exactly the requested amount to the address below.</p>
+          <h2 className="section-title">Select Payment Currency</h2>
+          <p className="subtitle">Choose the cryptocurrency you wish to use for this payment.</p>
         </div>
-        
-        <div className="crypto-gateway-card glass-card" style={{ maxWidth: '600px', margin: '0 auto', padding: '40px' }}>
-           <div className="crypto-selector" style={{ display: 'flex', gap: '10px', marginBottom: '30px', justifyContent: 'center' }}>
+        <div className="crypto-selection-container glass-card" style={{ maxWidth: '600px', margin: '0 auto', padding: '40px' }}>
+           <h3 style={{color: '#fff', marginBottom: '30px', textAlign: 'center'}}>Hardware Cost: ${customPrice.toFixed(2)}</h3>
+           <div style={{ display: 'grid', gap: '15px' }}>
               {['USDT', 'TRX', 'BTC'].map(coin => (
-                <button 
-                  key={coin}
-                  className={`btn-outline ${selectedCrypto === coin ? 'active-coin' : ''}`}
-                  onClick={() => setSelectedCrypto(coin)}
-                  style={{ 
-                    background: selectedCrypto === coin ? 'rgba(255,214,10,0.1)' : 'transparent',
-                    borderColor: selectedCrypto === coin ? 'var(--primary)' : 'rgba(255,255,255,0.1)',
-                    color: selectedCrypto === coin ? 'var(--primary)' : '#fff'
-                  }}
-                >
-                  {coin === 'USDT' ? 'USDT (Polygon)' : coin}
-                </button>
+                 <div 
+                   key={coin} 
+                   className="coin-option-card"
+                   onClick={() => handleCoinSelection(coin)}
+                   style={{
+                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', 
+                     background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)',
+                     transition: 'all 0.3s ease'
+                   }}
+                   onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(255,214,10,0.05)'; }}
+                   onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                 >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                       {coin === 'USDT' && <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" style={{width: 32}} />}
+                       {coin === 'TRX' && <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" alt="TRX" style={{width: 32}} />}
+                       {coin === 'BTC' && <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" style={{width: 32}} />}
+                       <div>
+                          <span style={{color: '#fff', fontWeight: 'bold', fontSize: '18px', display: 'block'}}>{coin === 'USDT' ? 'Tether' : (coin === 'TRX' ? 'Tron' : 'Bitcoin')}</span>
+                          <span style={{color: '#888', fontSize: '13px'}}>{coin === 'USDT' ? 'Polygon Network' : (coin === 'TRX' ? 'TRC20 Network' : 'Bitcoin Network')}</span>
+                       </div>
+                    </div>
+                 </div>
               ))}
            </div>
-           
-           <div className="payment-details" style={{ textAlign: 'center' }}>
-              <p style={{ color: '#888', marginBottom: '5px' }}>Amount to send</p>
-              <h3 style={{ fontSize: '32px', color: '#fff', marginBottom: '20px' }}>
-                {selectedCrypto === 'BTC' ? (customPrice / 65000).toFixed(6) : (selectedCrypto === 'TRX' ? (customPrice / 0.12).toFixed(2) : customPrice.toFixed(2))} <span style={{ fontSize: '16px', color: 'var(--primary)' }}>{selectedCrypto}</span>
+           <button className="btn-outline" onClick={() => setPaymentStage('checkout')} style={{ width: '100%', marginTop: '30px' }}>Cancel Payment</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentStage === 'crypto-invoice') {
+    if (!cryptoInvoiceData) {
+       return (
+          <div className="checkout-page container text-center" style={{ paddingTop: '100px', minHeight: '60vh' }}>
+             <h2 style={{color: '#fff'}}>Securely Generating Invoice...</h2>
+             <p style={{color: '#888'}}>Connecting to blockchain gateway via NOWPayments API...</p>
+             <div className="spinner" style={{ margin: '30px auto', border: '3px solid rgba(255,214,10,0.1)', borderTop: '3px solid var(--primary)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+          </div>
+       );
+    }
+
+    return (
+      <div className="checkout-page container">
+        <div className="checkout-header text-center" style={{ marginBottom: '20px' }}>
+          <h2 className="section-title" style={{ fontSize: '24px' }}>Awaiting Payment</h2>
+          <p className="subtitle" style={{ fontSize: '14px' }}>Scan the QR code or copy the exact address below.</p>
+        </div>
+        
+        <div className="crypto-invoice-card glass-card" style={{ maxWidth: '420px', margin: '0 auto', padding: '0', overflow: 'hidden' }}>
+           <div style={{ background: 'rgba(255,214,10,0.08)', padding: '20px 15px', textAlign: 'center', borderBottom: '1px solid rgba(255,214,10,0.2)' }}>
+              <p style={{ color: '#aaa', marginBottom: '4px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}>Send Exactly</p>
+              <h3 style={{ fontSize: '28px', color: '#fff', margin: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'Montserrat, sans-serif' }}>
+                 {cryptoInvoiceData.pay_amount}
+                <span style={{ fontSize: '14px', color: 'var(--primary)' }}>{cryptoInvoiceData.pay_currency.replace(/matic|trc20/gi, '').toUpperCase()}</span>
               </h3>
+           </div>
+           
+           <div style={{ padding: '25px 20px', textAlign: 'center' }}>
+              <div className="qr-container" style={{ background: '#fff', padding: '10px', borderRadius: '12px', display: 'inline-block', marginBottom: '20px' }}>
+                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${cryptoInvoiceData.pay_address}`} alt="QR Code" style={{ width: '150px', height: '150px' }} />
+              </div>
+
+              <div className="address-box" style={{ textAlign: 'left', marginBottom: '20px' }}>
+                 <p style={{ fontSize: '11px', color: '#888', marginBottom: '8px' }}>Deposit Address</p>
+                 <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', padding: '12px 14px', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: 'monospace', color: '#fff', fontSize: '12px', wordBreak: 'break-all', marginRight: '10px' }}>{cryptoInvoiceData.pay_address}</span>
+                    <button style={{ background: 'rgba(255,214,10,0.1)', border: '1px solid rgba(255,214,10,0.3)', color: 'var(--primary)', cursor: 'pointer', fontWeight: 'bold', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', flexShrink: 0 }} onClick={() => handleCopy(cryptoInvoiceData.pay_address)}>COPY</button>
+                 </div>
+              </div>
+
+              <div className="timer-box" style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)', animation: 'blink 1.5s infinite' }}></div>
+                    <span style={{ fontSize: '13px', color: '#bbb' }}>Awaiting Deposit...</span>
+                 </div>
+                 <span style={{ fontFamily: 'monospace', color: '#fff', fontSize: '16px', fontWeight: 'bold', letterSpacing: '1px' }}>{formatTime(timeLeft)}</span>
+              </div>
               
-              <div className="qr-container" style={{ background: '#fff', padding: '15px', borderRadius: '12px', display: 'inline-block', marginBottom: '25px' }}>
-                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${CRYPTO_WALLETS[selectedCrypto]}`} alt="QR Code" style={{ width: '200px', height: '200px' }} />
-              </div>
 
-              <div className="address-box" style={{ background: 'rgba(0,0,0,0.3)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '30px' }}>
-                 <p style={{ fontSize: '12px', color: '#888', marginBottom: '8px', textTransform: 'uppercase' }}>{selectedCrypto} Deposit Address</p>
-                 <p style={{ fontFamily: 'monospace', color: '#fff', fontSize: '15px', letterSpacing: '1px', wordBreak: 'break-all' }}>{CRYPTO_WALLETS[selectedCrypto]}</p>
-              </div>
-
-              <div className="payment-status" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: 'var(--accent-green)', fontWeight: 'bold' }}>
-                 <span className="status-dot" style={{ background: 'var(--accent-green)', width: '10px', height: '10px', borderRadius: '50%', boxShadow: '0 0 10px var(--accent-green)', animation: 'blink 1s infinite' }}></span>
-                 Awaiting network confirmation...
-              </div>
-
-              {/* Fake button for UX testing since there's no real backend webhook listening */}
-              <button className="btn-primary" onClick={handleCryptoPaymentSuccess} style={{ width: '100%', marginTop: '30px' }} disabled={isProcessing}>
-                 {isProcessing ? 'Verifying Block...' : 'Simulate Payment Success'}
-              </button>
-              <button className="btn-outline" onClick={() => setPaymentStage('checkout')} style={{ width: '100%', marginTop: '10px', border: 'none' }}>
-                 Cancel & Go Back
+              
+              <br/>
+              <button style={{ background: 'none', border: 'none', color: '#888', fontSize: '12px', marginTop: '5px', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setPaymentStage('crypto-selection')}>
+                 Change Payment Coin
               </button>
            </div>
         </div>
@@ -263,12 +398,14 @@ const Checkout = () => {
             style={{ cursor: 'pointer', transition: 'all 0.3s' }}
           >
              <div className="method-info">
-              <span className="method-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src="https://nowpayments.io/images/logo/logo-nowpayments-white.svg" alt="NOWPayments" style={{ width: '40px', height: 'auto', objectFit: 'contain' }} />
+              <span className="method-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '50%' }}>
+                 <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" style={{width: 16}} />
+                 <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" alt="TRX" style={{width: 16}} />
+                 <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" style={{width: 16}} />
               </span>
               <div>
-                <h4>Crypto Payment Gateway</h4>
-                <p>Pay securely with USDT Polygon, TRX, or BTC</p>
+                <h4>Direct Crypto Deposit</h4>
+                <p>Pay anonymously using USDT, TRX, or BTC</p>
               </div>
             </div>
           </div>

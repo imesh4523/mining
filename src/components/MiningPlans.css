@@ -85,6 +85,24 @@
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card {
+    padding: 28px 20px;
+  }
+
+  .plan-card.popular {
+    transform: none;
+  }
+
+  .plan-price {
+    font-size: 26px;
+  }
+}
+
 .btn-buy {
   width: 100%;
   background: linear-gradient(135deg, var(--primary), #ffa300);

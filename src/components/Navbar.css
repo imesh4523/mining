@@ -94,3 +94,33 @@
   border-color: var(--primary);
   transform: translateY(-2px);
 }
+
+@media (max-width: 768px) {
+  .navbar {
+    height: 65px;
+    padding: 0 4px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-balance {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .balance-label {
+    display: none;
+  }
+
+  .logo-text {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .btn-primary {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}

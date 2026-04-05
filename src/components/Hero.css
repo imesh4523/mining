@@ -305,10 +305,51 @@
   .hero {
     grid-template-columns: 1fr;
     text-align: center;
-    padding-top: 60px;
+    padding-top: 40px;
+    min-height: auto;
+    gap: 20px;
   }
 
   .hero-description {
-    margin: 0 auto 32px;
+    margin: 0 auto 28px;
+    font-size: 15px;
+  }
+
+  .hero-actions {
+    justify-content: center;
+    display: flex;
+  }
+
+  .bonus-badge {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-animation-container {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: clamp(32px, 8vw, 52px);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+
+  .hero-description {
+    font-size: 14px;
+  }
+
+  .bonus-badge {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .bonus-text {
+    font-size: 11px;
+    letter-spacing: 0.8px;
   }
 }

@@ -165,3 +165,26 @@
   }
 }
 
+@media (max-width: 600px) {
+  .gpu-horizontal-card {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .gpu-card-section {
+    padding: 0;
+    min-width: 0 !important;
+  }
+
+  .price-section h4 {
+    font-size: 24px;
+  }
+
+  .value {
+    font-size: 14px;
+  }
+
+  .label {
+    font-size: 10px;
+  }
+}

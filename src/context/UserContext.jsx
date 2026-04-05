@@ -34,7 +34,7 @@ export const UserProvider = ({ children }) => {
 
   // Sync state to MongoDB Server
   useEffect(() => {
-    fetch('http://localhost:5000/api/user/sync', {
+    fetch('/api/user/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ deviceId, balance, activePlans })

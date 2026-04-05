@@ -25,3 +25,29 @@
   font-size: 14px;
   border-top: 1px solid var(--card-border);
 }
+
+@media (max-width: 768px) {
+  .stats-section,
+  .plans-section {
+    padding: 40px 0;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .container {
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-section,
+  .plans-section {
+    padding: 28px 0;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+}
