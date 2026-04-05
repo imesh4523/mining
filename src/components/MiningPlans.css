@@ -87,54 +87,62 @@
 
 @media (max-width: 768px) {
   .plans-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 1fr; /* Two per row on mobile */
+    gap: 10px; /* Tighter gap for small screen */
   }
 
   .plan-card {
-    padding: 34px 20px 24px; /* More top padding to clear ribbon */
-    border-radius: 18px;
+    padding: 24px 12px 16px; /* Very compact padding */
+    border-radius: 14px;
+    min-height: auto;
   }
 
   .recommended-ribbon {
-    top: 15px;
-    right: -40px;
-    padding: 4px 40px;
-    font-size: 10px;
+    top: 10px;
+    right: -45px;
+    padding: 3px 40px;
+    font-size: 8px;
   }
 
   .plan-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    position: relative;
-    z-index: 5;
+    flex-direction: column; /* Stack name and price in narrow columns */
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 12px;
   }
 
   .plan-name {
-    font-size: 13px;
+    font-size: 11px;
+    opacity: 0.8;
   }
 
   .plan-price {
-    font-size: 22px;
-    margin-top: 0;
-  }
-
-  .plan-info {
-    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 800;
   }
 
   .info-row {
-    padding: 8px 0;
+    padding: 6px 0;
+    flex-wrap: wrap; /* Allow values to wrap if column is very narrow */
   }
 
-  .info-label, .info-value {
-    font-size: 13px;
+  .info-label {
+    font-size: 10px;
+  }
+  
+  .info-value {
+    font-size: 11px;
+    width: 100%; /* Force value to new line if name above it to save space */
+  }
+
+  .btn-buy {
+    padding: 10px 5px;
+    font-size: 11px;
+    border-radius: 8px;
   }
 
   .plan-card.popular {
-    transform: none;
     border-width: 1px;
   }
 }

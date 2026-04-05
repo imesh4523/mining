@@ -68,21 +68,33 @@
 /* Mobile specific fixes */
 @media (max-width: 600px) {
   .stats-container {
-    margin: 15px -10px; /* Pull slightly into negative margin to use more edge space */
-    padding: 0 10px;
+    margin: 15px -16px; 
+    padding: 0 4px; /* Reduced to minimum */
+    border-radius: 0; /* Full edge to edge feel on mobile */
   }
 
-  .stats-table th, .stats-table td {
-    padding: 12px 6px; /* Very tight padding for mobile */
+  .stats-table th {
+    padding: 10px 4px;
+    font-size: 9px;
+    letter-spacing: 0;
   }
   
+  .stats-table td {
+    padding: 10px 4px;
+  }
+  
+  .asset-cell {
+    gap: 6px;
+  }
+
   .asset-name {
-    font-size: 11px;
-    letter-spacing: -0.2px;
+    font-size: 10px;
+    letter-spacing: -0.4px;
+    line-height: 1;
   }
   
   .asset-info span:last-child {
-    font-size: 9px !important;
+    font-size: 8px !important;
   }
 
   .sparkline {
@@ -90,7 +102,13 @@
   }
 
   .price-cell, .hashrate-cell, .profit-text {
-    font-size: 11px;
+    font-size: 10px;
     white-space: nowrap;
+    letter-spacing: -0.2px;
+  }
+
+  /* Force table scroll if it still overflows */
+  .stats-table {
+    min-width: 320px;
   }
 }
