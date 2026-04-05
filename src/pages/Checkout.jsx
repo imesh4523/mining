@@ -3,6 +3,12 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import './Checkout.css';
 
+const CRYPTO_WALLETS = {
+  'USDT': '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+  'TRX': 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+  'BTC': 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+};
+
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -10,6 +16,9 @@ const Checkout = () => {
   const plan = location.state?.plan;
   const [isProcessing, setIsProcessing] = useState(false);
   const [customPrice, setCustomPrice] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState('wallet');
+  const [paymentStage, setPaymentStage] = useState('checkout'); // 'checkout' | 'crypto-gateway'
+  const [selectedCrypto, setSelectedCrypto] = useState('USDT');
 
   useEffect(() => {
     if (plan?.price) {
@@ -52,16 +61,12 @@ const Checkout = () => {
     maxPrice = minPrice;
   }
   
-  // Cleanly extract hashrate (GPU plans store it inside the gpu name string)
   let initialHashrate = plan.hashrate;
   if (!initialHashrate && plan.gpu) {
      const match = plan.gpu.match(/\((.*?)\)/);
-     if (match) initialHashrate = match[1]; // Extracts e.g. "1.6 GH/s"
+     if (match) initialHashrate = match[1];
   }
 
-  const [paymentMethod, setPaymentMethod] = useState('wallet');
-
-  // Calculate relative hashrate purely for display
   let displayHashrate = initialHashrate;
   if (isRange && initialHashrate?.includes('-')) {
     const hashParts = initialHashrate.split('-');
@@ -82,10 +87,9 @@ const Checkout = () => {
     if (paymentMethod === 'nowpayments') {
       setIsProcessing(true);
       setTimeout(() => {
-        // Simulate NowPayments Gateway redirection
-        alert(`Redirecting to NOWPayments securely to pay $${customPrice.toFixed(2)} in Crypto...`);
+        setPaymentStage('crypto-gateway');
         setIsProcessing(false);
-      }, 1500);
+      }, 1000);
       return;
     }
 
@@ -104,6 +108,75 @@ const Checkout = () => {
       setIsProcessing(false);
     }, 1500);
   };
+
+  const handleCryptoPaymentSuccess = () => {
+      // Simulating the user actually sending the crypto and our backend detecting it
+      setIsProcessing(true);
+      setTimeout(() => {
+         // Add plan without deducting 'balance' since they paid via external crypto
+         addPlan({ ...plan, purchasePrice: customPrice, hashrate: displayHashrate });
+         navigate('/console');
+      }, 2000);
+  }
+
+  if (paymentStage === 'crypto-gateway') {
+    return (
+      <div className="checkout-page container">
+        <div className="checkout-header text-center">
+          <h2 className="section-title">Crypto Payment Gateway</h2>
+          <p className="subtitle">Send exactly the requested amount to the address below.</p>
+        </div>
+        
+        <div className="crypto-gateway-card glass-card" style={{ maxWidth: '600px', margin: '0 auto', padding: '40px' }}>
+           <div className="crypto-selector" style={{ display: 'flex', gap: '10px', marginBottom: '30px', justifyContent: 'center' }}>
+              {['USDT', 'TRX', 'BTC'].map(coin => (
+                <button 
+                  key={coin}
+                  className={`btn-outline ${selectedCrypto === coin ? 'active-coin' : ''}`}
+                  onClick={() => setSelectedCrypto(coin)}
+                  style={{ 
+                    background: selectedCrypto === coin ? 'rgba(255,214,10,0.1)' : 'transparent',
+                    borderColor: selectedCrypto === coin ? 'var(--primary)' : 'rgba(255,255,255,0.1)',
+                    color: selectedCrypto === coin ? 'var(--primary)' : '#fff'
+                  }}
+                >
+                  {coin === 'USDT' ? 'USDT (Polygon)' : coin}
+                </button>
+              ))}
+           </div>
+           
+           <div className="payment-details" style={{ textAlign: 'center' }}>
+              <p style={{ color: '#888', marginBottom: '5px' }}>Amount to send</p>
+              <h3 style={{ fontSize: '32px', color: '#fff', marginBottom: '20px' }}>
+                {selectedCrypto === 'BTC' ? (customPrice / 65000).toFixed(6) : (selectedCrypto === 'TRX' ? (customPrice / 0.12).toFixed(2) : customPrice.toFixed(2))} <span style={{ fontSize: '16px', color: 'var(--primary)' }}>{selectedCrypto}</span>
+              </h3>
+              
+              <div className="qr-container" style={{ background: '#fff', padding: '15px', borderRadius: '12px', display: 'inline-block', marginBottom: '25px' }}>
+                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${CRYPTO_WALLETS[selectedCrypto]}`} alt="QR Code" style={{ width: '200px', height: '200px' }} />
+              </div>
+
+              <div className="address-box" style={{ background: 'rgba(0,0,0,0.3)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '30px' }}>
+                 <p style={{ fontSize: '12px', color: '#888', marginBottom: '8px', textTransform: 'uppercase' }}>{selectedCrypto} Deposit Address</p>
+                 <p style={{ fontFamily: 'monospace', color: '#fff', fontSize: '15px', letterSpacing: '1px', wordBreak: 'break-all' }}>{CRYPTO_WALLETS[selectedCrypto]}</p>
+              </div>
+
+              <div className="payment-status" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: 'var(--accent-green)', fontWeight: 'bold' }}>
+                 <span className="status-dot" style={{ background: 'var(--accent-green)', width: '10px', height: '10px', borderRadius: '50%', boxShadow: '0 0 10px var(--accent-green)', animation: 'blink 1s infinite' }}></span>
+                 Awaiting network confirmation...
+              </div>
+
+              {/* Fake button for UX testing since there's no real backend webhook listening */}
+              <button className="btn-primary" onClick={handleCryptoPaymentSuccess} style={{ width: '100%', marginTop: '30px' }} disabled={isProcessing}>
+                 {isProcessing ? 'Verifying Block...' : 'Simulate Payment Success'}
+              </button>
+              <button className="btn-outline" onClick={() => setPaymentStage('checkout')} style={{ width: '100%', marginTop: '10px', border: 'none' }}>
+                 Cancel & Go Back
+              </button>
+           </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="checkout-page container">
@@ -191,11 +264,11 @@ const Checkout = () => {
           >
              <div className="method-info">
               <span className="method-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src="https://nowpayments.io/images/logo/logo-nowpayments-white.svg" alt="NOWPayments" style={{ width: '40px', objectFit: 'contain' }} />
+                <img src="https://nowpayments.io/images/logo/logo-nowpayments-white.svg" alt="NOWPayments" style={{ width: '40px', height: 'auto', objectFit: 'contain' }} />
               </span>
               <div>
-                <h4>NOWPayments</h4>
-                <p>Pay securely with BTC, ETH, USDT & more</p>
+                <h4>Crypto Payment Gateway</h4>
+                <p>Pay securely with USDT Polygon, TRX, or BTC</p>
               </div>
             </div>
           </div>
@@ -216,7 +289,7 @@ const Checkout = () => {
           </button>
           
           <p className="secure-badge">
-            <span className="icon">🛡️</span> {paymentMethod === 'nowpayments' ? 'Secured by NOWPayments Crypto Gateway' : 'SSL Encrypted Secure Server Connection'}
+            <span className="icon">🛡️</span> {paymentMethod === 'nowpayments' ? 'Secured by Crypto Gateway Protocol' : 'SSL Encrypted Secure Server Connection'}
           </p>
         </div>
       </div>
