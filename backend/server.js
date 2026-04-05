@@ -398,7 +398,7 @@ app.patch('/api/admin/user/:id/balance', async (req, res) => {
 });
 
 // All other routes should serve the React app's index.html
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
