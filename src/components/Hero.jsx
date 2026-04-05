@@ -37,10 +37,18 @@ const Hero = () => {
           <span className="bonus-icon">🎉</span>
           <span className="bonus-text">CLAIM $200 WELCOME BONUS</span>
         </div>
-        <p className="hero-description">
-          Start mining cryptocurrencies effortlessly using our
-          state-of-the-art technology from home. Sign up today and instantly receive your welcome bonus to kickstart your earnings!
-        </p>
+        <motion.p 
+          className="hero-description"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.015, delayChildren: 1.5 } } }}
+        >
+          {"Start mining cryptocurrencies effortlessly using our state-of-the-art technology from home. Sign up today and instantly receive your welcome bonus to kickstart your earnings!".split("").map((char, index) => (
+            <motion.span key={index} variants={{ hidden: { opacity: 0, y: 3 }, visible: { opacity: 1, y: 0 } }}>
+              {char}
+            </motion.span>
+          ))}
+        </motion.p>
         <div className="hero-actions">
           <button className="btn-primary">Get Started Now</button>
         </div>

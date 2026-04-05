@@ -1,0 +1,154 @@
+.gpu-plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.gpu-horizontal-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 18, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 24px;
+  padding: 24px 30px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gpu-horizontal-card:hover {
+  background: rgba(255, 214, 10, 0.03);
+  border-color: rgba(255, 214, 10, 0.2);
+  transform: translateX(5px);
+  box-shadow: -5px 10px 30px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 214, 10, 0.05);
+}
+
+.gpu-card-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 20px;
+}
+
+.gpu-card-section.divider {
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.price-section {
+  padding-left: 0;
+  min-width: 150px;
+}
+
+.price-section h4 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  line-height: 1;
+}
+
+.gpu-name {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.label {
+  font-size: 11px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.value {
+  font-size: 18px;
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.value.highlight {
+  color: var(--accent-green);
+}
+
+.sub-value {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 9px;
+  background: rgba(55, 214, 122, 0.1);
+  color: var(--accent-green);
+  padding: 4px 8px;
+  border-radius: 4px;
+  width: max-content;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.monthly-label {
+  color: var(--primary);
+}
+
+.massive-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: 0 0 15px rgba(255, 214, 10, 0.2);
+}
+
+.action-section {
+  padding-right: 0;
+  align-items: flex-end;
+}
+
+.btn-buy-elegant {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.gpu-horizontal-card:hover .btn-buy-elegant {
+  background: var(--primary);
+  color: #000;
+  box-shadow: 0 5px 15px rgba(255, 214, 10, 0.3);
+}
+
+@media (max-width: 1100px) {
+  .gpu-horizontal-card {
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 24px;
+  }
+  .gpu-card-section.divider {
+    border-left: none;
+    padding: 0;
+    min-width: 150px;
+  }
+  .action-section {
+    width: 100%;
+    margin-top: 10px;
+    align-items: center;
+  }
+  .action-section button {
+    width: 100%;
+  }
+}
+

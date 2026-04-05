@@ -13,8 +13,8 @@ const Navbar = () => {
       </div>
       <ul className="nav-links">
         <li><a href="#">Dashboard</a></li>
-        <li><a href="#">Pricing</a></li>
-        <li><a href="#">Hardware</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#hardware">Hardware</a></li>
         <li><a href="#">About Us</a></li>
       </ul>
       <div className="nav-actions">

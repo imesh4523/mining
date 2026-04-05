@@ -14,15 +14,15 @@ const plans = [
     price: '$50 - $199',
     hashrate: '500 - 1990 GH/s',
     dailyProfit: '3.5%',
-    totalEarned: '(Investment × 70%) + $4 Bonus'
+    totalEarned: '(Investment × 70%) + $4 Bonus',
+    recommended: true
   },
   {
     name: 'PRO',
     price: '$200 - $999',
     hashrate: '2.0 - 9.9 TH/s',
     dailyProfit: '4.0%',
-    totalEarned: '(Investment × 80%) + $4 Bonus',
-    popular: true
+    totalEarned: '(Investment × 80%) + $4 Bonus'
   },
   {
     name: 'ELITE',
@@ -37,7 +37,12 @@ const MiningPlans = () => {
   return (
     <div className="plans-grid">
       {plans.map((plan, index) => (
-        <div key={index} className={`plan-card glass-card ${plan.popular ? 'popular' : ''}`}>
+        <div key={index} className={`plan-card glass-card ${plan.recommended ? 'popular' : ''}`}>
+          {plan.recommended && (
+            <div className="recommended-ribbon">
+              RECOMMENDED
+            </div>
+          )}
           <div className="plan-header">
             <span className="plan-name">{plan.name}</span>
             <h3 className="plan-price">{plan.price}</h3>
