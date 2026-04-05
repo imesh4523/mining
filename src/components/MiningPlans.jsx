@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MiningPlans.css';
 
 const plans = [
@@ -34,6 +35,8 @@ const plans = [
 ];
 
 const MiningPlans = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="plans-grid">
       {plans.map((plan, index) => (
@@ -61,7 +64,7 @@ const MiningPlans = () => {
               <span className="info-value" style={{ fontSize: '12px', color: 'var(--primary)' }}>{plan.totalEarned}</span>
             </div>
           </div>
-          <button className="btn-outline plan-btn">Get Started</button>
+          <button className="btn-buy" onClick={() => navigate('/checkout', { state: { plan } })}>Select Package</button>
         </div>
       ))}
     </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './GpuPlans.css';
 
 const gpuData = [
@@ -13,6 +14,8 @@ const gpuData = [
 ];
 
 const GpuPlans = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="gpu-plans-list">
       {gpuData.map((plan, index) => (
@@ -25,7 +28,10 @@ const GpuPlans = () => {
 
           <div className="gpu-card-section divider hashrate-section">
             <span className="label">Hashrate</span>
-            <span className="value">⚡ {plan.hashrate}</span>
+            <span className="value hashrate-value">
+              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png" alt="Speed" width="20" height="20" className="hashrate-icon" />
+              {plan.hashrate}
+            </span>
           </div>
 
           <div className="gpu-card-section divider roi-section">
@@ -45,13 +51,8 @@ const GpuPlans = () => {
             <span className="badge">FULLY COVERED</span>
           </div>
 
-          <div className="gpu-card-section divider monthly-section">
-            <span className="label monthly-label">1 Month Total</span>
-            <span className="value massive-value">{plan.monthTotal}</span>
-          </div>
-
           <div className="gpu-card-section action-section">
-            <button className="btn-buy-elegant">Select Plan</button>
+            <button className="btn-buy-elegant" onClick={() => navigate('/checkout', { state: { plan } })}>Select Plan</button>
           </div>
 
         </div>

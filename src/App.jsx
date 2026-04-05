@@ -1,41 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import StatsTable from './components/StatsTable';
-import MiningPlans from './components/MiningPlans';
-import GpuPlans from './components/GpuPlans';
-import AboutUs from './components/AboutUs';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
+import Checkout from './pages/Checkout';
+import Console from './pages/Console';
+import { UserProvider } from './context/UserContext';
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+};
 
 function App() {
   return (
-    <div className="app">
-      <Navbar />
-      <main>
-        <Hero />
-        <section id="hardware" className="stats-section container">
-          <h2 className="section-title">Live Mining Statistics</h2>
-          <StatsTable />
-        </section>
-        <section id="pricing" className="plans-section container">
-          <h2 className="section-title">Cloud Packages</h2>
-          <MiningPlans />
-        </section>
-        <section id="gpu-pricing" className="plans-section container" style={{ marginTop: '60px' }}>
-          <h2 className="section-title">Dedicated GPU Mining</h2>
-          <GpuPlans />
-        </section>
-        <section id="about" className="about-section container" style={{ marginTop: '80px', marginBottom: '80px'}}>
-          <h2 className="section-title">About Us</h2>
-          <AboutUs />
-        </section>
-      </main>
-      <footer className="footer">
-        <div className="container">
-          <p>&copy; 2026 CRYSTAL MINE. All rights reserved.</p>
+    <UserProvider>
+      <Router>
+        <ScrollToTop />
+        <div className="app">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/console" element={<Console />} />
+          </Routes>
+          <footer className="footer">
+            <div className="container">
+              <p>&copy; 2026 CRYSTAL MINE. All rights reserved.</p>
+            </div>
+          </footer>
         </div>
-      </footer>
-    </div>
+      </Router>
+    </UserProvider>
   );
 }
 

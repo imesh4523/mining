@@ -84,3 +84,25 @@
 .plan-btn {
   width: 100%;
 }
+
+.btn-buy {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), #ffa300);
+  color: #000;
+  padding: 14px 30px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: var(--transition-smooth);
+  box-shadow: 0 5px 15px rgba(255, 214, 10, 0.2);
+  margin-top: auto;
+}
+
+.btn-buy:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(255, 214, 10, 0.5);
+  background: linear-gradient(135deg, #ffe033, var(--primary));
+}

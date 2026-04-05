@@ -1,0 +1,197 @@
+.profile-page {
+  padding-top: 120px;
+  padding-bottom: 80px;
+  min-height: 80vh;
+}
+
+.profile-header {
+  margin-bottom: 40px;
+}
+
+.profile-header .subtitle {
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-top: -10px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.wallet-card, .plans-summary-card {
+  padding: 30px;
+  border-radius: 20px;
+}
+
+.wallet-card h3, .plans-summary-card h3 {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.balance-display {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 30px;
+}
+
+.balance-display .currency {
+  font-size: 24px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.balance-display .amount {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1;
+}
+
+.balance-display .currency-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+.wallet-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.hashrate-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.hashrate-display .icon {
+  font-size: 40px;
+  filter: drop-shadow(0 0 10px rgba(55, 214, 122, 0.4));
+}
+
+.hashrate-display .amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.text-green {
+  color: var(--accent-green) !important;
+  text-shadow: 0 0 15px rgba(55, 214, 122, 0.3);
+}
+
+.status-text {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.active-plans-section h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 25px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.empty-state {
+  padding: 60px 40px;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-bottom: 25px;
+}
+
+.active-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.active-plan-card {
+  padding: 25px;
+  border-top: 4px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.plan-header h4 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.status-badge.pulse-green {
+  background: rgba(55, 214, 122, 0.1);
+  color: var(--accent-green);
+  border: 1px solid rgba(55, 214, 122, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.detail .label {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail .value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.text-light {
+  color: #ccc !important;
+  font-weight: 500 !important;
+}
+
+.view-console-btn {
+  margin-top: auto;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
