@@ -92,8 +92,15 @@
   }
 
   .plan-card {
-    padding: 24px 20px;
+    padding: 34px 20px 24px; /* More top padding to clear ribbon */
     border-radius: 18px;
+  }
+
+  .recommended-ribbon {
+    top: 15px;
+    right: -40px;
+    padding: 4px 40px;
+    font-size: 10px;
   }
 
   .plan-header {
@@ -101,6 +108,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    position: relative;
+    z-index: 5;
   }
 
   .plan-name {

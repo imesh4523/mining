@@ -67,19 +67,30 @@
 
 /* Mobile specific fixes */
 @media (max-width: 600px) {
+  .stats-container {
+    margin: 15px -10px; /* Pull slightly into negative margin to use more edge space */
+    padding: 0 10px;
+  }
+
   .stats-table th, .stats-table td {
-    padding: 14px 12px;
+    padding: 12px 6px; /* Very tight padding for mobile */
   }
   
   .asset-name {
-    font-size: 12px;
+    font-size: 11px;
+    letter-spacing: -0.2px;
   }
   
+  .asset-info span:last-child {
+    font-size: 9px !important;
+  }
+
   .sparkline {
-    display: none; /* Hide trend chart on mobile to save horizontal space */
+    display: none; 
   }
 
   .price-cell, .hashrate-cell, .profit-text {
-    font-size: 12px;
+    font-size: 11px;
+    white-space: nowrap;
   }
 }
