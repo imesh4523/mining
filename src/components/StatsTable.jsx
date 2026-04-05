@@ -40,7 +40,8 @@ const StatsTable = () => {
                     {CryptoIcons[asset.symbol] ? CryptoIcons[asset.symbol]() : <span className="asset-symbol-icon">{asset.symbol[0]}</span>}
                   </div>
                   <div className="asset-info">
-                    <span className="asset-name">{asset.name} - {asset.symbol}</span>
+                    <span className="asset-name">{asset.name}</span>
+                    <span style={{ fontSize: '10px', color: '#666', display: 'block' }}>{asset.symbol}</span>
                   </div>
                 </div>
               </td>

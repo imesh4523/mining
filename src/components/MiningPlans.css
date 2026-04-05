@@ -88,18 +88,45 @@
 @media (max-width: 768px) {
   .plans-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .plan-card {
-    padding: 28px 20px;
+    padding: 24px 20px;
+    border-radius: 18px;
+  }
+
+  .plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .plan-name {
+    font-size: 13px;
+  }
+
+  .plan-price {
+    font-size: 22px;
+    margin-top: 0;
+  }
+
+  .plan-info {
+    margin-bottom: 20px;
+  }
+
+  .info-row {
+    padding: 8px 0;
+  }
+
+  .info-label, .info-value {
+    font-size: 13px;
   }
 
   .plan-card.popular {
     transform: none;
-  }
-
-  .plan-price {
-    font-size: 26px;
+    border-width: 1px;
   }
 }
 

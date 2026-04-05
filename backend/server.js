@@ -4,6 +4,9 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,13 +21,8 @@ app.use(express.json());
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// PostgreSQL connection (Set DATABASE_URL in DigitalOcean environment variables)
+// PostgreSQL connection (Set DATABASE_URL in environment variables)
 const PG_URI = process.env.DATABASE_URL;
-
-if (!PG_URI) {
-  console.error('FATAL ERROR: DATABASE_URL is not set. Database connection failed.');
-  process.exit(1);
-}
 
 const pool = new Pool({
   connectionString: PG_URI,
@@ -85,9 +83,9 @@ pool.connect()
 
         await client.query(`
           INSERT INTO settings (key, value)
-          VALUES ('nowpayments_api_key', $1)
-          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
-        `, [process.env.NOWPAYMENTS_API_KEY || '']);
+          VALUES ('nowpayments_api_key', '')
+          ON CONFLICT (key) DO NOTHING;
+        `);
 
         await client.query(`
           INSERT INTO settings (key, value)
