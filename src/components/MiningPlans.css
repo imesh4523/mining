@@ -6,15 +6,17 @@
 }
 
 .plan-card {
-  padding: 30px;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease;
+  transition: var(--transition-smooth);
+  background: var(--card-bg);
 }
 
 .plan-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
   border-color: var(--primary);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
 .plan-card.popular {
