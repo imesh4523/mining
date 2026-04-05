@@ -1,0 +1,66 @@
+.stats-container {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.stats-table th {
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.stats-table td {
+  padding: 20px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.asset-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.asset-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.asset-icon.btc { background-color: #f7931a; }
+.asset-icon.eth { background-color: #627eea; }
+.asset-icon.ltc { background-color: #345d9d; }
+
+.asset-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.price-cell, .hashrate-cell {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.profit-cell {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profit-text {
+  color: var(--accent-green);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sparkline svg {
+  filter: drop-shadow(0 0 5px var(--accent-green));
+}
