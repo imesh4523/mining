@@ -24,7 +24,9 @@ const StatsTable = () => {
             <tr key={asset.id}>
               <td>
                 <div className="asset-cell">
-                  <div className={`asset-icon ${asset.symbol.toLowerCase()}`}></div>
+                  <div className={`asset-icon-wrapper ${asset.symbol.toLowerCase()}`}>
+                    <span className="asset-symbol-icon">{asset.symbol[0]}</span>
+                  </div>
                   <div className="asset-info">
                     <span className="asset-name">{asset.name} - {asset.symbol}</span>
                   </div>

@@ -18,8 +18,9 @@
 }
 
 .plan-card.popular {
-  border: 1px solid var(--primary);
-  box-shadow: 0 0 20px var(--primary-glow);
+  border: 1.5px solid var(--primary);
+  box-shadow: 0 0 30px rgba(255, 214, 10, 0.2);
+  transform: scale(1.02);
 }
 
 .plan-header {

@@ -1,14 +1,14 @@
 :root {
-  --primary: #ffd700;
-  --primary-glow: rgba(255, 215, 0, 0.3);
-  --bg: #0b0e11;
-  --card-bg: #1e2329;
-  --card-border: #2b3139;
+  --primary: #ffd60a;
+  --primary-glow: rgba(255, 214, 10, 0.4);
+  --bg: #090b0d;
+  --card-bg: #161a1e;
+  --card-border: #23282f;
   --text-main: #ffffff;
   --text-muted: #848e9c;
-  --accent-green: #2ebd85;
-  --glass: rgba(30, 35, 41, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --accent-green: #37d67a;
+  --glass: rgba(22, 26, 30, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -49,9 +49,9 @@ button {
 .btn-primary {
   background-color: var(--primary);
   color: #000;
-  padding: 10px 24px;
-  border-radius: 50px;
-  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
   font-size: 14px;
 }
 
@@ -61,11 +61,11 @@ button {
 }
 
 .btn-outline {
-  border: 1px solid var(--primary);
+  border: 1.5px solid var(--primary);
   color: var(--primary);
-  padding: 10px 24px;
-  border-radius: 50px;
-  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
   font-size: 14px;
 }
 

@@ -29,15 +29,20 @@
   gap: 12px;
 }
 
-.asset-icon {
-  width: 28px;
-  height: 28px;
+.asset-icon-wrapper {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
 }
 
-.asset-icon.btc { background-color: #f7931a; }
-.asset-icon.eth { background-color: #627eea; }
-.asset-icon.ltc { background-color: #345d9d; }
+.asset-icon-wrapper.btc { background-color: #f7931a; color: white; }
+.asset-icon-wrapper.eth { background-color: #ffffff; color: #333; }
+.asset-icon-wrapper.ltc { background-color: #345d9d; color: white; }
 
 .asset-name {
   font-weight: 600;
