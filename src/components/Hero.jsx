@@ -13,11 +13,29 @@ const Hero = () => {
         transition={{ duration: 0.8 }}
       >
         <h1 className="hero-title">
-          CLOUD MINING <br />
-          <span className="highlight">MADE SIMPLE.</span>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{ visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } } }}
+          >
+            {"CLOUD MINING ".split("").map((char, index) => (
+              <motion.span key={index} variants={{ hidden: { opacity: 0, y: 5 }, visible: { opacity: 1, y: 0 } }}>
+                {char}
+              </motion.span>
+            ))}
+            <br />
+            <span className="highlight">
+              {"MADE SIMPLE.".split("").map((char, index) => (
+                <motion.span key={index} variants={{ hidden: { opacity: 0, y: 5 }, visible: { opacity: 1, y: 0 } }}>
+                  {char}
+                </motion.span>
+              ))}
+            </span>
+          </motion.div>
         </h1>
-        <div className="bonus-badge" style={{ display: 'inline-block', background: 'rgba(255, 214, 10, 0.15)', border: '1px solid var(--primary)', padding: '8px 16px', borderRadius: '30px', marginTop: '10px', marginBottom: '15px' }}>
-          <span style={{ color: 'var(--primary)', fontWeight: 'bold', letterSpacing: '1px' }}>🎉 CLAIM $200 WELCOME BONUS</span>
+        <div className="bonus-badge">
+          <span className="bonus-icon">🎉</span>
+          <span className="bonus-text">CLAIM $200 WELCOME BONUS</span>
         </div>
         <p className="hero-description">
           Start mining cryptocurrencies effortlessly using our

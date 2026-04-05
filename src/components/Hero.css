@@ -11,9 +11,48 @@
   font-size: clamp(40px, 5vw, 64px);
   font-weight: 800;
   line-height: 1.05;
-  margin-bottom: 24px;
+  margin-bottom: 15px;
   letter-spacing: -0.5px;
   font-family: 'Montserrat', sans-serif;
+}
+
+.bonus-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 214, 10, 0.08) 0%, rgba(255, 214, 10, 0.02) 100%);
+  border: 1px solid rgba(255, 214, 10, 0.2);
+  padding: 8px 24px;
+  border-radius: 50px;
+  margin-bottom: 25px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.bonus-badge:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 214, 10, 0.6);
+  box-shadow: 0 8px 25px rgba(255, 214, 10, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(255, 214, 10, 0.12) 0%, rgba(255, 214, 10, 0.04) 100%);
+}
+
+.bonus-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #fff 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-left: 10px;
+}
+
+.bonus-icon {
+  font-size: 16px;
+  filter: drop-shadow(0 0 8px rgba(255, 214, 10, 0.4));
 }
 
 .hero-description {
