@@ -41,6 +41,53 @@ const Profile = () => {
         </div>
       </div>
 
+      <div className="settings-section">
+        <h3>Account & Security Settings</h3>
+        <div className="settings-grid">
+            <div className="security-card glass-card">
+               <h4>Change Password</h4>
+               <p className="setting-desc">Keep your crystal mining account secure.</p>
+               <form className="password-form" onSubmit={async (e) => { 
+                   e.preventDefault(); 
+                   const currentPass = e.target[0].value;
+                   const newPass = e.target[1].value;
+                   
+                   try {
+                     const deviceId = localStorage.getItem('crystal_device_id');
+                     const res = await fetch('http://localhost:5000/api/user/password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ deviceId, currentPassword: currentPass, newPassword: newPass })
+                     });
+                     
+                     const data = await res.json();
+                     if (res.ok) {
+                        alert(`MongoDB Success: ${data.message}`);
+                        e.target.reset();
+                     } else {
+                        alert(`Database Error: ${data.error}`);
+                     }
+                   } catch (err) {
+                      alert('Server Error: Database connection refused. Ensure backend is running.');
+                   }
+               }}>
+                  <input type="password" placeholder="Current Password (Default: 123456)" required className="auth-input" />
+                  <input type="password" placeholder="New Password" required className="auth-input" />
+                  <button type="submit" className="btn-outline">Save New Password</button>
+               </form>
+            </div>
+            
+            <div className="security-card glass-card">
+               <h4>Two-Factor Authentication (2FA)</h4>
+               <p className="setting-desc">Add an extra layer of structural security to your withdrawals via Google Authenticator.</p>
+               <div className="two-fa-status">
+                 <span className="status-badge disabled">Disabled</span>
+               </div>
+               <button className="btn-primary" style={{ width: '100%', marginTop: 'auto' }}>Enable 2FA Security</button>
+            </div>
+        </div>
+      </div>
+
       <div className="active-plans-section">
         <h3>Your Mining Contracts</h3>
         {activePlans.length === 0 ? (

@@ -59,6 +59,8 @@ const Checkout = () => {
      if (match) initialHashrate = match[1]; // Extracts e.g. "1.6 GH/s"
   }
 
+  const [paymentMethod, setPaymentMethod] = useState('wallet');
+
   // Calculate relative hashrate purely for display
   let displayHashrate = initialHashrate;
   if (isRange && initialHashrate?.includes('-')) {
@@ -77,6 +79,16 @@ const Checkout = () => {
   }
 
   const handlePurchase = () => {
+    if (paymentMethod === 'nowpayments') {
+      setIsProcessing(true);
+      setTimeout(() => {
+        // Simulate NowPayments Gateway redirection
+        alert(`Redirecting to NOWPayments securely to pay $${customPrice.toFixed(2)} in Crypto...`);
+        setIsProcessing(false);
+      }, 1500);
+      return;
+    }
+
     if (balance < customPrice) {
       alert("Insufficient Balance. Please deposit funds into your Main Wallet.");
       return;
@@ -86,7 +98,6 @@ const Checkout = () => {
     
     setTimeout(() => {
       if (purchasePlan(customPrice)) {
-        // We override the plan hashrate string so Console correctly pulls the scaled hashrate
         addPlan({ ...plan, purchasePrice: customPrice, hashrate: displayHashrate });
         navigate('/console');
       }
@@ -155,7 +166,11 @@ const Checkout = () => {
         <div className="payment-section glass-card">
           <h3>Payment Method</h3>
           
-          <div className="payment-method-card active">
+          <div 
+            className={`payment-method-card ${paymentMethod === 'wallet' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('wallet')}
+            style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+          >
             <div className="method-info">
               <span className="method-icon">💼</span>
               <div>
@@ -169,17 +184,23 @@ const Checkout = () => {
             </div>
           </div>
 
-          <div className="payment-method-card disabled">
+          <div 
+            className={`payment-method-card ${paymentMethod === 'nowpayments' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('nowpayments')}
+            style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+          >
              <div className="method-info">
-              <span className="method-icon">💳</span>
+              <span className="method-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src="https://nowpayments.io/images/logo/logo-nowpayments-white.svg" alt="NOWPayments" style={{ width: '40px', objectFit: 'contain' }} />
+              </span>
               <div>
-                <h4>External Crypto Wallet</h4>
-                <p>Connect MetaMask or TrustWallet (Coming Soon)</p>
+                <h4>NOWPayments</h4>
+                <p>Pay securely with BTC, ETH, USDT & more</p>
               </div>
             </div>
           </div>
 
-          {balance < customPrice && (
+          {paymentMethod === 'wallet' && balance < customPrice && (
              <div className="insufficient-warning">
                <p>⚠️ Insufficient funds in Main Wallet. You are short ${(customPrice - balance).toFixed(2)}.</p>
                <Link to="/profile" className="btn-outline" style={{ display: 'inline-block', marginTop: '10px', fontSize: '11px', padding: '8px 16px' }}>Go to Deposit</Link>
@@ -189,13 +210,13 @@ const Checkout = () => {
           <button 
             className="btn-primary btn-checkout" 
             onClick={handlePurchase}
-            disabled={isProcessing || balance < customPrice}
+            disabled={isProcessing || (paymentMethod === 'wallet' && balance < customPrice)}
           >
-            {isProcessing ? 'Deploying Hardware...' : `Pay $${customPrice.toFixed(2)} & Deploy`}
+            {isProcessing ? 'Processing...' : (paymentMethod === 'nowpayments' ? `Pay $${customPrice.toFixed(2)} via Crypto` : `Pay $${customPrice.toFixed(2)} & Deploy`)}
           </button>
           
           <p className="secure-badge">
-            <span className="icon">🛡️</span> SSL Encrypted Secure Server Connection
+            <span className="icon">🛡️</span> {paymentMethod === 'nowpayments' ? 'Secured by NOWPayments Crypto Gateway' : 'SSL Encrypted Secure Server Connection'}
           </p>
         </div>
       </div>
