@@ -52,21 +52,27 @@ const Checkout = () => {
     maxPrice = minPrice;
   }
   
+  // Cleanly extract hashrate (GPU plans store it inside the gpu name string)
+  let initialHashrate = plan.hashrate;
+  if (!initialHashrate && plan.gpu) {
+     const match = plan.gpu.match(/\((.*?)\)/);
+     if (match) initialHashrate = match[1]; // Extracts e.g. "1.6 GH/s"
+  }
+
   // Calculate relative hashrate purely for display
-  // E.g if range is 50-100, and user picks 75, we parse the basic hashrate string and visually scale it.
-  let displayHashrate = plan.hashrate;
-  if (isRange && plan.hashrate.includes('-')) {
-    const hashParts = plan.hashrate.split('-');
+  let displayHashrate = initialHashrate;
+  if (isRange && initialHashrate?.includes('-')) {
+    const hashParts = initialHashrate.split('-');
     const minHash = parseFloat(hashParts[0].replace(/[^0-9.]/g, ''));
     const maxHash = parseFloat(hashParts[1].replace(/[^0-9.]/g, ''));
     const ratio = (customPrice - minPrice) / (maxPrice - minPrice) || 0;
     const calcHash = (minHash + (maxHash - minHash) * ratio).toFixed(1);
-    const unit = plan.hashrate.includes('GH') ? 'GH/s' : 'MH/s';
+    const unit = initialHashrate.includes('GH') ? 'GH/s' : 'MH/s';
     displayHashrate = `${calcHash} ${unit}`;
-  } else if (isRange && plan.hashrate.includes('+')) {
-    const minHash = parseFloat(plan.hashrate.replace(/[^0-9.]/g, ''));
+  } else if (isRange && initialHashrate?.includes('+')) {
+    const minHash = parseFloat(initialHashrate.replace(/[^0-9.]/g, ''));
     const calcHash = (minHash * (customPrice / minPrice)).toFixed(1);
-    const unit = plan.hashrate.includes('GH') ? 'GH/s' : 'MH/s';
+    const unit = initialHashrate.includes('GH') ? 'GH/s' : 'MH/s';
     displayHashrate = `${calcHash} ${unit}`;
   }
 
@@ -121,7 +127,6 @@ const Checkout = () => {
 
           {isRange && (
              <div className="summary-item custom-price-selector" style={{ flexDirection: 'column', alignItems: 'stretch', background: 'rgba(255,214,10,0.05)', padding: '20px', borderRadius: '12px', marginTop: '15px' }}>
-                <span className="label" style={{ marginBottom: '15px', color: '#fff', fontWeight: 'bold' }}>Investment Amount</span>
                 <input 
                   type="range" 
                   min={minPrice} 

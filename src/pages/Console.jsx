@@ -68,6 +68,16 @@ const Console = () => {
     }
   }, [activePlans]);
 
+  // Formatting helper
+  const formatHashrate = (hashInMH) => {
+    if (hashInMH >= 1000000) {
+      return (hashInMH / 1000000).toFixed(2) + ' TH/s';
+    } else if (hashInMH >= 1000) {
+      return (hashInMH / 1000).toFixed(2) + ' GH/s';
+    }
+    return hashInMH.toFixed(2) + ' MH/s';
+  };
+
   // Earning Simulator
   useEffect(() => {
     if (activePlans.length === 0 || isDeploying) return;
@@ -112,12 +122,11 @@ const Console = () => {
        ];
 
        const generateMiningLog = () => {
-         // Create dynamic hashrate fluctuation
          const fluctuation = (Math.random() * (sessionHash * 0.03)).toFixed(2);
          const isPositive = Math.random() > 0.5;
          const currentHash = isPositive ? (sessionHash + parseFloat(fluctuation)) : (sessionHash - parseFloat(fluctuation));
          
-         const dynamicHashtag = `Running SHA-256 algorithm at ${currentHash.toFixed(2)} MH/s...`;
+         const dynamicHashtag = `Running SHA-256 algorithm at ${formatHashrate(currentHash)}...`;
          const allLogs = [...baseLogs, dynamicHashtag, dynamicHashtag, dynamicHashtag];
          const randomMsg = allLogs[Math.floor(Math.random() * allLogs.length)];
          const timestamp = new Date().toLocaleTimeString();
@@ -195,7 +204,7 @@ const Console = () => {
             </div>
             <div className="stat-row">
               <span className="label">Active Hashrate</span>
-              <span className="value">⚡ {isDeploying ? '0.00' : sessionHash.toFixed(2)} MH/s</span>
+              <span className="value">⚡ {isDeploying ? '0.00 MH/s' : formatHashrate(sessionHash)}</span>
             </div>
             <div className="stat-row">
               <span className="label">Connected Rigs</span>
