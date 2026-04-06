@@ -91,7 +91,7 @@ const Profile = () => {
             <span className="currency-label">USD</span>
           </div>
           <div className="wallet-actions">
-            <Link to="/#pricing" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>Deposit / Buy Plan</Link>
+            <Link to="/checkout" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>Deposit / Buy Plan</Link>
           </div>
         </div>
 

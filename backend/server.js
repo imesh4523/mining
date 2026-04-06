@@ -406,6 +406,61 @@ app.patch('/api/admin/user/:id/balance', async (req, res) => {
   res.json({ success: true });
 });
 
+// ---- Admin: All Withdrawal Requests ----
+app.get('/api/admin/withdrawals', async (req, res) => {
+  const { secret } = req.query;
+  const secretResult = await pool.query("SELECT value FROM settings WHERE key = 'admin_secret'");
+  const adminSecret = secretResult.rows[0]?.value;
+  if (secret !== adminSecret) return res.status(403).json({ error: 'Unauthorized' });
+  try {
+    const result = await pool.query('SELECT * FROM withdrawals ORDER BY created_at DESC LIMIT 100');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch withdrawals' });
+  }
+});
+
+// ---- Admin: Approve / Reject Withdrawal ----
+app.patch('/api/admin/withdrawal/:id/status', async (req, res) => {
+  const { secret, status } = req.body;
+  const secretResult = await pool.query("SELECT value FROM settings WHERE key = 'admin_secret'");
+  const adminSecret = secretResult.rows[0]?.value;
+  if (secret !== adminSecret) return res.status(403).json({ error: 'Unauthorized' });
+  if (!['approved', 'rejected'].includes(status)) return res.status(400).json({ error: 'Invalid status' });
+
+  try {
+    const wd = await pool.query('SELECT * FROM withdrawals WHERE id = $1', [req.params.id]);
+    if (!wd.rows.length) return res.status(404).json({ error: 'Withdrawal not found' });
+
+    const withdrawal = wd.rows[0];
+
+    // If rejecting, refund the balance back to the user
+    if (status === 'rejected' && withdrawal.status === 'pending') {
+      await pool.query('UPDATE users SET balance = balance + $1 WHERE device_id = $2',
+        [withdrawal.amount, withdrawal.device_id]);
+    }
+
+    await pool.query('UPDATE withdrawals SET status = $1 WHERE id = $2', [status, req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update withdrawal' });
+  }
+});
+
+// ---- Admin: Purchase History (all payments) ----
+app.get('/api/admin/purchases', async (req, res) => {
+  const { secret } = req.query;
+  const secretResult = await pool.query("SELECT value FROM settings WHERE key = 'admin_secret'");
+  const adminSecret = secretResult.rows[0]?.value;
+  if (secret !== adminSecret) return res.status(403).json({ error: 'Unauthorized' });
+  try {
+    const result = await pool.query('SELECT * FROM payments ORDER BY created_at DESC LIMIT 100');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch purchases' });
+  }
+});
+
 // All other routes should serve the React app's index.html
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
