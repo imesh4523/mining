@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import './Console.css';
 
 const Console = () => {
-  const { activePlans, addEarnings, balance } = useUser();
+  const { activePlans, balance } = useUser();
   const [logs, setLogs] = useState([]);
   const [btcAllocation, setBtcAllocation] = useState(70);
   const [sessionHash, setSessionHash] = useState(0);
@@ -78,14 +78,8 @@ const Console = () => {
     return hashInMH.toFixed(2) + ' MH/s';
   };
 
-  // Earning Simulator
-  useEffect(() => {
-    if (activePlans.length === 0 || isDeploying) return;
-    const interval = setInterval(() => {
-       addEarnings(0.005 + (sessionHash * 0.00002));
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [activePlans, sessionHash, isDeploying, addEarnings]);
+  // NOTE: Earnings are added ONLY by the backend cron every 5 minutes.
+  // The console is display-only — it shows mining activity but does NOT modify balances.
 
   // Log Simulator
   useEffect(() => {

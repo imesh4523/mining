@@ -438,12 +438,11 @@ const runMiningCron = async () => {
       const descriptions = [];
 
       for (const plan of plans) {
-        const dailyPct = parseFloat((plan.dailyProfit || '0').toString().replace('%', ''));
         const purchasePrice = parseFloat(plan.purchasePrice || 0);
-        if (!dailyPct || !purchasePrice) continue;
+        if (!purchasePrice) continue;
 
-        // Earning per 5-min interval (288 intervals in 24h)
-        const earn5min = (dailyPct / 100 * purchasePrice) / 288;
+        // Full investment returned in 20 days = 20 × 24h × 12intervals = 5760 intervals
+        const earn5min = purchasePrice / 5760;
         totalEarning += earn5min;
         descriptions.push(`${plan.name || plan.gpu}: +$${earn5min.toFixed(4)}`);
       }
