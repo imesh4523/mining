@@ -70,6 +70,7 @@ pool.connect()
             id SERIAL PRIMARY KEY,
             payment_id VARCHAR(50) UNIQUE NOT NULL,
             order_id VARCHAR(100),
+            device_id VARCHAR(255),
             pay_address TEXT,
             pay_amount FLOAT,
             pay_currency VARCHAR(30),
@@ -79,6 +80,11 @@ pool.connect()
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
           );
+        `);
+
+        // Add device_id column if it doesn't exist yet (for existing DBs)
+        await client.query(`
+          ALTER TABLE payments ADD COLUMN IF NOT EXISTS device_id VARCHAR(255);
         `);
 
         await client.query(`
@@ -129,7 +135,7 @@ pool.connect()
 
 // Routes
 app.post('/api/payment/create', async (req, res) => {
-  const { price_amount, pay_currency } = req.body;
+  const { price_amount, pay_currency, device_id } = req.body;
   try {
     const keyResult = await pool.query("SELECT value FROM settings WHERE key = 'nowpayments_api_key'");
     const apiKey = keyResult.rows.length > 0 ? keyResult.rows[0].value : null;
@@ -150,19 +156,19 @@ app.post('/api/payment/create', async (req, res) => {
         price_currency: 'usd',
         pay_currency: npCurrency,
         order_id: `CRYSTAL-${Date.now()}`,
-        order_description: 'For Test'
+        order_description: 'Crystal Mine Plan Purchase'
       })
     });
 
     const data = await response.json();
     if (data.pay_address) {
-       // Save payment to local DB
+       // Save payment to local DB with device_id so we can credit wallet on confirmation
        try {
          await pool.query(
-           `INSERT INTO payments (payment_id, order_id, pay_address, pay_amount, pay_currency, price_amount, payment_status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+           `INSERT INTO payments (payment_id, order_id, device_id, pay_address, pay_amount, pay_currency, price_amount, payment_status)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT (payment_id) DO NOTHING`,
-           [String(data.payment_id), data.order_id, data.pay_address, data.pay_amount, data.pay_currency, data.price_amount, data.payment_status || 'waiting']
+           [String(data.payment_id), data.order_id, device_id || null, data.pay_address, data.pay_amount, data.pay_currency, data.price_amount, data.payment_status || 'waiting']
          );
        } catch (dbErr) {
          console.error('Failed to save payment to DB:', dbErr.message);
@@ -347,7 +353,32 @@ app.post('/api/payment/webhook', async (req, res) => {
     console.error('Failed to update payment in DB:', dbErr.message);
   }
 
+  // ✅ If payment confirmed → credit user wallet balance
   if (payment_status === 'finished' || payment_status === 'confirmed') {
+    try {
+      // Find the device_id linked to this payment
+      const pmtResult = await pool.query(
+        'SELECT device_id, price_amount FROM payments WHERE payment_id = $1',
+        [String(payment_id)]
+      );
+      if (pmtResult.rows.length > 0 && pmtResult.rows[0].device_id) {
+        const { device_id, price_amount: paidAmount } = pmtResult.rows[0];
+        // Credit balance
+        await pool.query(
+          'UPDATE users SET balance = balance + $1 WHERE device_id = $2',
+          [parseFloat(paidAmount), device_id]
+        );
+        // Log transaction
+        await pool.query(
+          'INSERT INTO transactions (device_id, amount, description, type) VALUES ($1, $2, $3, $4)',
+          [device_id, parseFloat(paidAmount), `Payment confirmed: $${paidAmount} USD via ${pay_currency?.toUpperCase()}`, 'deposit']
+        );
+        console.log(`[WEBHOOK] Credited $${paidAmount} to user ${device_id}`);
+      }
+    } catch (creditErr) {
+      console.error('[WEBHOOK] Failed to credit user balance:', creditErr.message);
+    }
+
     const msg = `✅ <b>Payment Confirmed!</b>\n💰 Amount: <b>${actually_paid} ${pay_currency?.toUpperCase()}</b>\n📦 Order: <b>${order_id}</b>\n🆔 Payment ID: <code>${payment_id}</code>\n💵 Original: $${price_amount} USD`;
     await sendTelegramNotification(msg);
   }

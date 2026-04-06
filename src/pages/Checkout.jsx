@@ -197,7 +197,8 @@ const Checkout = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           price_amount: customPrice,
-          pay_currency: coin
+          pay_currency: coin,
+          device_id: localStorage.getItem('crystal_device_id')
         })
       });
       const data = await response.json();
