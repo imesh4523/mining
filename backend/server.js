@@ -82,6 +82,17 @@ pool.connect()
         `);
 
         await client.query(`
+          CREATE TABLE IF NOT EXISTS transactions (
+            id SERIAL PRIMARY KEY,
+            device_id VARCHAR(255) NOT NULL,
+            amount FLOAT NOT NULL,
+            description TEXT,
+            type VARCHAR(20) DEFAULT 'mining',
+            created_at TIMESTAMP DEFAULT NOW()
+          );
+        `);
+
+        await client.query(`
           INSERT INTO settings (key, value)
           VALUES ('nowpayments_api_key', '')
           ON CONFLICT (key) DO NOTHING;
@@ -399,6 +410,64 @@ app.patch('/api/admin/user/:id/balance', async (req, res) => {
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
+
+// ---- Transaction History Endpoint ----
+app.get('/api/transactions/:deviceId', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM transactions WHERE device_id = $1 ORDER BY created_at DESC LIMIT 100',
+      [req.params.deviceId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+// ---- 5-Minute Mining Cron ----
+// Earnings per 5 min = (dailyProfit% * purchasePrice) / 288  (288 intervals per day)
+const runMiningCron = async () => {
+  try {
+    const users = await pool.query('SELECT id, device_id, balance, active_plans FROM users');
+    for (const user of users.rows) {
+      let plans = [];
+      try { plans = JSON.parse(user.active_plans || '[]'); } catch { continue; }
+      if (!plans.length) continue;
+
+      let totalEarning = 0;
+      const descriptions = [];
+
+      for (const plan of plans) {
+        const dailyPct = parseFloat((plan.dailyProfit || '0').toString().replace('%', ''));
+        const purchasePrice = parseFloat(plan.purchasePrice || 0);
+        if (!dailyPct || !purchasePrice) continue;
+
+        // Earning per 5-min interval (288 intervals in 24h)
+        const earn5min = (dailyPct / 100 * purchasePrice) / 288;
+        totalEarning += earn5min;
+        descriptions.push(`${plan.name || plan.gpu}: +$${earn5min.toFixed(4)}`);
+      }
+
+      if (totalEarning <= 0) continue;
+
+      await pool.query(
+        'UPDATE users SET balance = balance + $1 WHERE device_id = $2',
+        [totalEarning, user.device_id]
+      );
+
+      await pool.query(
+        'INSERT INTO transactions (device_id, amount, description, type) VALUES ($1, $2, $3, $4)',
+        [user.device_id, totalEarning, descriptions.join(' | '), 'mining']
+      );
+    }
+    console.log('[CRON] Mining earnings distributed at', new Date().toISOString());
+  } catch (err) {
+    console.error('[CRON] Mining cron error:', err.message);
+  }
+};
+
+// Run every 5 minutes
+setInterval(runMiningCron, 5 * 60 * 1000);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log(`Crystal Backend Postgres Server running on port ${PORT}`));

@@ -10,10 +10,12 @@ const Profile = () => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawCurrency, setWithdrawCurrency] = useState('USDT');
   const [withdrawAddress, setWithdrawAddress] = useState('');
-  const [withdrawStatus, setWithdrawStatus] = useState(null); // {type: 'success'|'error', msg: ''}
+  const [withdrawStatus, setWithdrawStatus] = useState(null);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawHistory, setWithdrawHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [transactions, setTransactions] = useState([]);
+  const [txLoading, setTxLoading] = useState(true);
 
   const deviceId = localStorage.getItem('crystal_device_id');
 
@@ -23,6 +25,11 @@ const Profile = () => {
       .then(res => res.json())
       .then(data => { setWithdrawHistory(Array.isArray(data) ? data : []); setHistoryLoading(false); })
       .catch(() => setHistoryLoading(false));
+
+    fetch(`/api/transactions/${deviceId}`)
+      .then(res => res.json())
+      .then(data => { setTransactions(Array.isArray(data) ? data : []); setTxLoading(false); })
+      .catch(() => setTxLoading(false));
   }, [withdrawStatus]);
 
   const handleWithdraw = async (e) => {
@@ -284,6 +291,39 @@ const Profile = () => {
             ))}
           </div>
         )}
+      </div>
+
+      {/* ===== TRANSACTION HISTORY ===== */}
+      <div className="active-plans-section">
+        <h3>💰 Transaction History</h3>
+        <div className="withdraw-history-card glass-card" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+          {txLoading ? (
+            <p style={{ color: '#666', fontSize: '14px', padding: '20px' }}>Loading transactions...</p>
+          ) : transactions.length === 0 ? (
+            <div className="empty-history">
+              <span style={{ fontSize: '32px' }}>📊</span>
+              <p>No mining income yet. Earnings are added every 5 minutes while your plan is active.</p>
+            </div>
+          ) : (
+            <div className="history-list">
+              {transactions.map(tx => (
+                <div key={tx.id} className="history-item">
+                  <div className="history-item-left">
+                    <span className="history-currency" style={{ color: '#37d67a' }}>⛏ Mining Income</span>
+                    <span className="history-address" style={{ fontSize: '11px', color: '#555' }}>{tx.description}</span>
+                    <span className="history-date">{new Date(tx.created_at).toLocaleString()}</span>
+                  </div>
+                  <div className="history-item-right">
+                    <span className="history-amount" style={{ color: '#37d67a' }}>+${parseFloat(tx.amount).toFixed(4)}</span>
+                    <span className="history-status" style={{ color: '#37d67a', background: 'rgba(55,214,122,0.1)', border: '1px solid rgba(55,214,122,0.3)' }}>
+                      Credited
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
