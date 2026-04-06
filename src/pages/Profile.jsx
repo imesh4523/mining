@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import './Profile.css';
 
 const Profile = () => {
-  const { balance, activePlans, setBalance } = useUser();
+  const { balance, activePlans, setBalance, logout } = useUser();
 
   // Withdrawal state
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -18,6 +18,8 @@ const Profile = () => {
   const [txLoading, setTxLoading] = useState(true);
 
   const deviceId = localStorage.getItem('crystal_device_id');
+
+  if (!deviceId) return <Navigate to="/login" />;
 
   useEffect(() => {
     if (!deviceId) return;
@@ -77,9 +79,14 @@ const Profile = () => {
 
   return (
     <div className="profile-page container">
-      <div className="profile-header">
-        <h2 className="section-title">User Dashboard</h2>
-        <p className="subtitle">Manage your funds and active mining operations.</p>
+      <div className="profile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 className="section-title" style={{ marginBottom: '5px' }}>User Dashboard</h2>
+          <p className="subtitle">Manage your funds and active mining operations.</p>
+        </div>
+        <button onClick={logout} className="btn-outline" style={{ padding: '8px 16px', fontSize: '13px', borderColor: '#ff3366', color: '#ff3366' }}>
+          Log Out
+        </button>
       </div>
 
       <div className="dashboard-grid">

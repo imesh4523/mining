@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useUser } from '../context/UserContext';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import './Console.css';
 
 const Console = () => {
-  const { activePlans, balance } = useUser();
+  const { activePlans, balance, deviceId } = useUser();
+  if (!deviceId) return <Navigate to="/login" />;
   const [logs, setLogs] = useState([]);
   const [btcAllocation, setBtcAllocation] = useState(70);
   const [sessionHash, setSessionHash] = useState(0);

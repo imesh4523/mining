@@ -4,7 +4,7 @@ import { useUser } from '../context/UserContext';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { balance } = useUser();
+  const { balance, deviceId } = useUser();
 
   return (
     <nav className="navbar container">
@@ -24,17 +24,26 @@ const Navbar = () => {
         <li><a href="/#about">About Us</a></li>
       </ul>
       <div className="nav-actions">
-        <div className="nav-balance">
-           <span className="balance-label">Balance: </span>
-           <span className="balance-amount">${balance.toFixed(2)}</span>
-        </div>
-        <Link to="/profile" className="profile-icon-link" aria-label="Profile">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </Link>
-        <a href="/#pricing" className="btn-primary" style={{ marginLeft: '15px' }}>Start Mining</a>
+        {deviceId ? (
+          <>
+            <div className="nav-balance">
+               <span className="balance-label">Balance: </span>
+               <span className="balance-amount">${balance.toFixed(2)}</span>
+            </div>
+            <Link to="/profile" className="profile-icon-link" aria-label="Profile">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </Link>
+            <a href="/#pricing" className="btn-primary" style={{ marginLeft: '15px' }}>Start Mining</a>
+          </>
+        ) : (
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <Link to="/login" style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>Log In</Link>
+            <Link to="/register" className="btn-primary">Register</Link>
+          </div>
+        )}
       </div>
     </nav>
   );

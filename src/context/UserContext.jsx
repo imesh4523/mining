@@ -3,15 +3,16 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  // Generate unique ID to mock a logged-in user session in MongoDB
-  const [deviceId] = useState(() => {
-    let id = localStorage.getItem('crystal_device_id');
-    if (!id) {
-      id = 'usr_' + Math.random().toString(36).substring(2, 15);
-      localStorage.setItem('crystal_device_id', id);
-    }
-    return id;
+  const [deviceId, setDeviceId] = useState(() => {
+    return localStorage.getItem('crystal_device_id') || null;
   });
+
+  const logout = () => {
+    localStorage.removeItem('crystal_device_id');
+    localStorage.removeItem('crystal_balance');
+    localStorage.removeItem('crystal_plans');
+    window.location.href = '/login';
+  };
 
   // Use localStorage for persistence across reloads
   const [balance, setBalance] = useState(() => {
@@ -60,7 +61,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ balance, setBalance, activePlans, addEarnings, purchasePlan, addPlan }}>
+    <UserContext.Provider value={{ deviceId, logout, balance, setBalance, activePlans, addEarnings, purchasePlan, addPlan }}>
       {children}
     </UserContext.Provider>
   );

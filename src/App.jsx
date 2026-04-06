@@ -7,6 +7,8 @@ import Profile from './pages/Profile';
 import Checkout from './pages/Checkout';
 import Console from './pages/Console';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import { UserProvider } from './context/UserContext';
 
 const ScrollToTop = () => {
@@ -32,6 +34,8 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/console" element={<Console />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
           <footer className="footer">
             <div className="container">

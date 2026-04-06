@@ -45,6 +45,9 @@ pool.connect()
             active_plans JSONB DEFAULT '[]'::jsonb
           );
         `);
+        await client.query(`
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
+        `);
         
         await client.query(`
           CREATE TABLE IF NOT EXISTS settings (
@@ -180,6 +183,43 @@ app.post('/api/payment/create', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'NOWPayments Gateway failed' });
+  }
+});
+
+// Auth Routes
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const existing = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) return res.status(400).json({ error: 'Email already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // Use device_id as their session token ID to maintain compatibility with existing logic
+    const deviceId = 'usr_' + Math.random().toString(36).substring(2, 15) + Date.now();
+    
+    await pool.query(
+      'INSERT INTO users (device_id, email, password) VALUES ($1, $2, $3)',
+      [deviceId, email, hashedPassword]
+    );
+    res.json({ success: true, deviceId, message: 'Registration successful' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const user = userResult.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+    res.json({ success: true, deviceId: user.device_id });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

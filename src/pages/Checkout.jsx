@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, Navigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import './Checkout.css';
 
@@ -12,7 +12,8 @@ const CRYPTO_WALLETS = {
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { balance, purchasePlan, addPlan } = useUser();
+  const { balance, purchasePlan, addPlan, deviceId } = useUser();
+  if (!deviceId) return <Navigate to="/login" />;
   const plan = location.state?.plan;
   const [isProcessing, setIsProcessing] = useState(false);
   const [customPrice, setCustomPrice] = useState(0);
